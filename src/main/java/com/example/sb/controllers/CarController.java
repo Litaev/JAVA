@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.*;
 public class CarController  {
 
     @GetMapping("/cars")
-    private String getQueryCar(@RequestParam("name") String name, @RequestParam("mileage") Integer mileage) {
-        return "Car name is " + name + " and mileage is " + mileage.toString();
+    public String getQueryCar(@RequestParam("name") String name) {
+        return "Car name is " + name;
     }
 
     @GetMapping("/cars/{carID}")
-    private String getPathCar(@PathVariable("carID") Integer carID) {
+    public String getPathCar(@PathVariable("carID") Integer carID) {
         return "Car ID is " + carID.toString();
     }
 
