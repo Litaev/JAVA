@@ -1,24 +1,42 @@
 package com.example.sb.controllers;
 
-import org.springframework.web.bind.annotation.*;
-import org.apache.commons.text.StringEscapeUtils;
+import com.example.sb.model.Car;
+import com.example.sb.service.CarService;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
+/**
+ * Controller class for handling car-related API requests.
+ */
 @RestController
 @RequestMapping("/api")
-public class CarController  {
+public class CarController {
 
-    @GetMapping("/cars")
-    public Map<String, String> getQueryCar(@RequestParam("name") String name) {
-        String validatedName = StringEscapeUtils.escapeHtml4(name);
-        return Map.of("carName", validatedName);
-    }
+  private final CarService carService;
 
-    @GetMapping("/cars/{carID}")
-    public Map<String, Integer> getPathCar(@PathVariable("carID") Integer carID) {
-        return Map.of("carID", carID);
-    }
+  /**
+   * Controller class constructor.
+   */
+  public CarController(CarService carService)  {
+    this.carService = carService;
+  }
 
+  /**
+   * Retrieves a car info by its name.
+   */
+  @GetMapping("/cars")
+  public Car getQueryCar(@RequestParam("name") String name) {
+    return carService.getCarsByName(name);
+  }
 
+  /**
+   * Retrieves a car info by its id..
+   */
+  @GetMapping("/cars/{carId}")
+  public Car getPathCar(@PathVariable("carId") Integer carId) {
+    return carService.getCarById(carId);
+  }
 }
