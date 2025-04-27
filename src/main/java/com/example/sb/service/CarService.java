@@ -124,11 +124,7 @@ public class CarService {
         "%s_filter_%s_%s_%s_%s_%s_%s",
         getCacheKey(userId), name, fuelType, minYear, maxYear, minMileage, maxMileage
     );
-
-    logger.debug(
-        "Attempting to get filtered cars for user {} from cache with key {}",
-        userId, cacheKey
-    );
+    
 
     Optional<List<Car>> cachedCars = carCache.get(cacheKey);
     if (cachedCars.isPresent()) {
