@@ -117,7 +117,6 @@ public class UserService {
       String carName) {
     String cacheKey = buildCacheKey(minYear, maxYear, minMileage, maxMileage, fuelType, carName);
     Optional<List<User>> cachedUsers = userCache.get(cacheKey);
-    final long startTime = System.currentTimeMillis();
     if (cachedUsers.isPresent()) {
       logger.debug("Returning cached users with filters");
       return convertToDtoList(cachedUsers.get());

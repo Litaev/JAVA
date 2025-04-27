@@ -114,7 +114,6 @@ public class UserCache {
 
     cache.put(key, new CacheEntry(users, ttl));
     currentSize.incrementAndGet();
-    logger.debug("UserCache PUT - key: {}, size: {}", key, users.size());
   }
 
   /**

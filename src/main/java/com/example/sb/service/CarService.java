@@ -67,7 +67,6 @@ public class CarService {
    */
   @Transactional(readOnly = true)
   public List<CarDTO> getAllCars(Long userId) {
-    final long startTime = System.currentTimeMillis(); // Объявление сразу перед использованием.
     String cacheKey = getCacheKey(userId);
 
     Optional<List<Car>> cachedCars = carCache.get(cacheKey);
@@ -104,7 +103,6 @@ public class CarService {
       Integer minMileage,
       Integer maxMileage
   ) {
-    final long startTime = System.currentTimeMillis(); // Объявление сразу перед использованием.
     String cacheKey = String.format(
         "%s_filter_%s_%s_%s_%s_%s_%s",
         getCacheKey(userId), name, fuelType, minYear, maxYear, minMileage, maxMileage
@@ -134,7 +132,6 @@ public class CarService {
    */
   @Transactional(readOnly = true)
   public Optional<CarDTO> getCarById(Long carId, Long userId) {
-    final long startTime = System.currentTimeMillis(); // Объявление сразу перед использованием.
 
     Optional<Car> car = carRepository.findByIdAndOwnerId(carId, userId);
     if (car.isPresent()) {
@@ -153,7 +150,6 @@ public class CarService {
    */
   @Transactional
   public Optional<CarDTO> updateCar(Long carId, Long userId, CarDTO carDto) {
-    final long startTime = System.currentTimeMillis(); // Объявление сразу перед использованием.
 
     if (!carRepository.existsByIdAndOwnerId(carId, userId)) {
       return Optional.empty();
@@ -180,7 +176,6 @@ public class CarService {
    */
   @Transactional
   public boolean deleteCar(Long carId, Long userId) {
-    final long startTime = System.currentTimeMillis(); // Объявление сразу перед использованием.
 
     if (!carRepository.existsByIdAndOwnerId(carId, userId)) {
       return false;
