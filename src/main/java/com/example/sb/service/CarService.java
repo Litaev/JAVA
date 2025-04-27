@@ -1,111 +1,275 @@
 package com.example.sb.service;
 
+import com.example.sb.cache.CarCache;
 import com.example.sb.models.Car;
 import com.example.sb.models.User;
 import com.example.sb.repository.CarRepository;
 import com.example.sb.schemas.CarDTO;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service class for handling car-related business logic.
+ * Сервис для работы с автомобилями пользователей.
  */
 @Service
 public class CarService {
 
+  private static final Logger logger = LoggerFactory.getLogger(CarService.class);
+
   private final CarRepository carRepository;
-  private final Map<Long, List<Car>> cache = new ConcurrentHashMap<>();
+  private final CarCache carCache;
 
   /**
-   * Constructs a {@code CarService} instance.
+   * Конструктор для CarService.
    *
-   * @param carRepository the repository for {@link Car} entities
+   * @param carRepository репозиторий для работы с автомобилями.
+   * @param carCache кэш для автомобилей.
    */
   @Autowired
-  public CarService(CarRepository carRepository) {
+  public CarService(CarRepository carRepository, CarCache carCache) {
     this.carRepository = carRepository;
+    this.carCache = carCache;
   }
 
   /**
-   * Creates a new car for the specified user.
+   * Создание нового автомобиля для пользователя.
    *
-   * @param carDto the DTO containing car details
-   * @param userId the ID of the user to associate the car with
-   * @return the created car DTO
+   * @param carDto данные автомобиля.
+   * @param userId идентификатор пользователя.
+   * @return объект CarDTO, содержащий информацию о созданном автомобиле.
    */
+  @Transactional
   public CarDTO createCar(CarDTO carDto, Long userId) {
+    final long startTime = System.currentTimeMillis(); // Объявление сразу перед использованием.
+
     User user = new User();
     user.setId(userId);
     Car car = carDto.toEntity();
     car.setOwner(user);
+
     Car savedCar = carRepository.save(car);
+    invalidateUserCache(userId);
+
+    logger.info(
+        "Created car ID: {} for user ID: {} in {}ms",
+        savedCar.getId(), userId, System.currentTimeMillis() - startTime
+    );
+
     return CarDTO.fromEntity(savedCar);
   }
 
   /**
-   * Retrieves all cars belonging to the specified user.
+   * Получение всех автомобилей пользователя.
    *
-   * @param userId the ID of the user whose cars to retrieve
-   * @return a list of car DTOs
+   * @param userId идентификатор пользователя.
+   * @return список объектов CarDTO для пользователя.
    */
+  @Transactional(readOnly = true)
   public List<CarDTO> getAllCars(Long userId) {
-    List<Car> cars = cache.computeIfAbsent(userId, id -> carRepository.findByOwnerId(userId));
-    List<CarDTO> listCarDto = new ArrayList<>();
-    for (Car car : cars) {
-      listCarDto.add(CarDTO.fromEntity(car));
+    final long startTime = System.currentTimeMillis(); // Объявление сразу перед использованием.
+    String cacheKey = getCacheKey(userId);
+
+    logger.debug("Attempting to get user {} cars from cache", userId);
+    Optional<List<Car>> cachedCars = carCache.get(cacheKey);
+
+    if (cachedCars.isPresent()) {
+      logger.debug(
+          "Cache found for user {}, number of cars: {}",
+          userId, cachedCars.get().size()
+      );
+      return convertToDtoList(cachedCars.get());
     }
-    return listCarDto;
+
+    logger.debug("Cache not found for user {}, querying the database", userId);
+    List<Car> cars = carRepository.findByOwnerId(userId);
+    carCache.put(cacheKey, cars);
+
+    logger.info(
+        "Fetched {} cars from DB for user {} in {}ms",
+        cars.size(), userId, System.currentTimeMillis() - startTime
+    );
+
+    return convertToDtoList(cars);
   }
 
   /**
-   * Retrieves a car by its ID and associated user ID.
+   * Получение автомобилей пользователя с фильтрами.
    *
-   * @param carId the ID of the car to retrieve
-   * @param userId the ID of the user associated with the car
-   * @return an optional car DTO
+   * @param userId    идентификатор пользователя.
+   * @param name      название автомобиля.
+   * @param fuelType  тип топлива.
+   * @param minYear   минимальный год выпуска.
+   * @param maxYear   максимальный год выпуска.
+   * @param minMileage минимальный пробег.
+   * @param maxMileage максимальный пробег.
+   * @return список объектов CarDTO для пользователя с применёнными фильтрами.
    */
+  @Transactional(readOnly = true)
+  public List<CarDTO> getCarsWithFilters(
+      Long userId,
+      String name,
+      String fuelType,
+      Integer minYear,
+      Integer maxYear,
+      Integer minMileage,
+      Integer maxMileage
+  ) {
+    final long startTime = System.currentTimeMillis(); // Объявление сразу перед использованием.
+    String cacheKey = String.format(
+        "%s_filter_%s_%s_%s_%s_%s_%s",
+        getCacheKey(userId), name, fuelType, minYear, maxYear, minMileage, maxMileage
+    );
+
+    logger.debug(
+        "Attempting to get filtered cars for user {} from cache with key {}",
+        userId, cacheKey
+    );
+
+    Optional<List<Car>> cachedCars = carCache.get(cacheKey);
+    if (cachedCars.isPresent()) {
+      logger.debug(
+          "Cache found for filtered cars, key: {}, number of cars: {}",
+          cacheKey, cachedCars.get().size()
+      );
+      return convertToDtoList(cachedCars.get());
+    }
+
+    logger.debug("Cache not found, performing query in the database");
+    List<Car> cars = carRepository.findByOwnerIdWithFilters(
+        userId, name, fuelType, minYear, maxYear, minMileage, maxMileage
+    );
+    carCache.put(cacheKey, cars);
+
+    logger.info(
+        "Query with filters executed for user {} in {}ms. Found {} cars. Filters: "
+            + "name={}, fuelType={}, year={}-{}, mileage={}-{}",
+        userId, System.currentTimeMillis() - startTime, cars.size(),
+        name, fuelType, minYear, maxYear, minMileage, maxMileage
+    );
+
+    return convertToDtoList(cars);
+  }
+
+  /**
+   * Получение автомобиля по ID и ID пользователя.
+   *
+   * @param carId идентификатор автомобиля.
+   * @param userId идентификатор пользователя.
+   * @return объект CarDTO, если автомобиль найден, иначе Optional.empty().
+   */
+  @Transactional(readOnly = true)
   public Optional<CarDTO> getCarById(Long carId, Long userId) {
-    Optional<Car> car = carRepository.findByIdAndOwnerId(carId, userId);
-    return car.map(CarDTO::fromEntity);
-  }
+    final long startTime = System.currentTimeMillis(); // Объявление сразу перед использованием.
 
-  /**
-   * Updates an existing car with the provided details.
-   *
-   * @param carId the ID of the car to update
-   * @param userId the ID of the user associated with the car
-   * @param carDto the DTO containing updated car details
-   * @return an optional updated car DTO
-   */
-  public Optional<CarDTO> updateCar(Long carId, Long userId, CarDTO carDto) {
-    if (carRepository.existsById(carId)) {
-      Car car = carDto.toEntity();
-      User user = new User();
-      user.setId(userId);
-      car.setId(carId);
-      car.setOwner(user);
-      Car updatedCar = carRepository.save(car);
-      return Optional.of(CarDTO.fromEntity(updatedCar));
+    Optional<Car> car = carRepository.findByIdAndOwnerId(carId, userId);
+    if (car.isPresent()) {
+      logger.debug(
+          "Found car ID: {} for user {} in {}ms",
+          carId, userId, System.currentTimeMillis() - startTime
+      );
+      return car.map(CarDTO::fromEntity);
     }
+
+    logger.debug("Car ID: {} not found for user {}", carId, userId);
     return Optional.empty();
   }
 
   /**
-   * Deletes a car by its ID.
+   * Обновление данных автомобиля пользователя.
    *
-   * @param carId the ID of the car to delete
-   * @return true if the car was deleted, false otherwise
+   * @param carId идентификатор автомобиля.
+   * @param userId идентификатор пользователя.
+   * @param carDto данные автомобиля для обновления.
+   * @return объект CarDTO с обновлёнными данными, если автомобиль найден, иначе Optional.empty().
    */
-  public boolean deleteCar(Long carId) {
-    if (carRepository.existsById(carId)) {
-      carRepository.deleteById(carId);
-      return true;
+  @Transactional
+  public Optional<CarDTO> updateCar(Long carId, Long userId, CarDTO carDto) {
+    final long startTime = System.currentTimeMillis(); // Объявление сразу перед использованием.
+
+    if (!carRepository.existsByIdAndOwnerId(carId, userId)) {
+      logger.warn("Update not possible — car ID: {} not found for user {}", carId, userId);
+      return Optional.empty();
     }
-    return false;
+
+    Car car = carDto.toEntity();
+    car.setId(carId);
+    User owner = new User();
+    owner.setId(userId);
+    car.setOwner(owner);
+
+    Car updatedCar = carRepository.save(car);
+    invalidateUserCache(userId);
+
+    logger.info(
+        "Updated car ID: {} for user {} in {}ms",
+        carId, userId, System.currentTimeMillis() - startTime
+    );
+
+    return Optional.of(CarDTO.fromEntity(updatedCar));
+  }
+
+  /**
+   * Удаление автомобиля пользователя.
+   *
+   * @param carId идентификатор автомобиля.
+   * @param userId идентификатор пользователя.
+   * @return true, если автомобиль был успешно удалён, иначе false.
+   */
+  @Transactional
+  public boolean deleteCar(Long carId, Long userId) {
+    final long startTime = System.currentTimeMillis(); // Объявление сразу перед использованием.
+
+    if (!carRepository.existsByIdAndOwnerId(carId, userId)) {
+      logger.warn("Deletion not possible — car ID: {} not found for user {}", carId, userId);
+      return false;
+    }
+
+    carRepository.deleteById(carId);
+    invalidateUserCache(userId);
+
+    logger.info(
+        "Deleted car ID: {} for user {} in {}ms",
+        carId, userId, System.currentTimeMillis() - startTime
+    );
+
+    return true;
+  }
+
+  /**
+   * Очистка кэша машин одного пользователя.
+   *
+   * @param userId идентификатор пользователя.
+   */
+  public void clearUserCache(Long userId) {
+    carCache.evict(getCacheKey(userId));
+    logger.info("Cleared cache for user ID: {}", userId);
+  }
+
+  /**
+   * Полная очистка кэша всех машин.
+   */
+  public void clearAllCache() {
+    carCache.clear();
+    logger.info("Completely cleared car cache");
+  }
+
+  private List<CarDTO> convertToDtoList(List<Car> cars) {
+    return cars.stream()
+        .map(CarDTO::fromEntity)
+        .toList();
+  }
+
+  private String getCacheKey(Long userId) {
+    return "user_" + userId + "_cars";
+  }
+
+  private void invalidateUserCache(Long userId) {
+    carCache.evict(getCacheKey(userId));
+    logger.debug("Cache for user ID: {} invalidated", userId);
   }
 }

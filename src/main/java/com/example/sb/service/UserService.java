@@ -1,36 +1,44 @@
 package com.example.sb.service;
 
+import com.example.sb.cache.UserCache;
 import com.example.sb.models.User;
 import com.example.sb.repository.UserRepository;
 import com.example.sb.schemas.UserDTO;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Service class for handling user-related business logic.
+ * Сервис для работы с пользователями.
  */
 @Service
 public class UserService {
 
+  private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
   private final UserRepository userRepository;
+  private final UserCache userCache;
 
   /**
-   * Constructs a {@code UserService} instance.
+   * Конструктор для UserService.
    *
-   * @param userRepository the repository for {@link User} entities
+   * @param userRepository репозиторий для работы с пользователями.
+   * @param userCache кэш для пользователей.
    */
   @Autowired
-  public UserService(UserRepository userRepository) {
+  public UserService(UserRepository userRepository, UserCache userCache) {
     this.userRepository = userRepository;
+    this.userCache = userCache;
   }
 
   /**
-   * Creates a new user.
+   * Создание нового пользователя.
    *
-   * @param userDto the DTO containing user details
-   * @return the created user DTO
+   * @param userDto данные пользователя.
+   * @return объект UserDTO, содержащий информацию о созданном пользователе.
    */
   public UserDTO createUser(UserDTO userDto) {
     User user = userDto.toEntity();
@@ -38,9 +46,9 @@ public class UserService {
   }
 
   /**
-   * Retrieves all users.
+   * Получение всех пользователей.
    *
-   * @return a list of all user DTOs
+   * @return список объектов UserDTO для всех пользователей.
    */
   public List<UserDTO> getAllUsers() {
     return userRepository.findAll().stream()
@@ -49,10 +57,10 @@ public class UserService {
   }
 
   /**
-   * Retrieves a user by its ID.
+   * Получение пользователя по ID.
    *
-   * @param id the ID of the user to retrieve
-   * @return an optional user DTO
+   * @param id идентификатор пользователя.
+   * @return объект UserDTO, если пользователь найден, иначе Optional.empty().
    */
   public Optional<UserDTO> getUserById(Long id) {
     return userRepository.findById(id)
@@ -60,11 +68,11 @@ public class UserService {
   }
 
   /**
-   * Updates an existing user with the provided details.
+   * Обновление данных пользователя.
    *
-   * @param id the ID of the user to update
-   * @param userDto the DTO containing updated user details
-   * @return an optional updated user DTO
+   * @param id идентификатор пользователя.
+   * @param userDto данные пользователя для обновления.
+   * @return объект UserDTO с обновленными данными
    */
   public Optional<UserDTO> updateUser(Long id, UserDTO userDto) {
     if (userRepository.existsById(id)) {
@@ -76,10 +84,10 @@ public class UserService {
   }
 
   /**
-   * Deletes a user by its ID.
+   * Удаление пользователя.
    *
-   * @param id the ID of the user to delete
-   * @return true if the user was deleted, false otherwise
+   * @param id идентификатор пользователя.
+   * @return true, если пользователь был успешно удалён, иначе false.
    */
   public boolean deleteUser(Long id) {
     if (userRepository.existsById(id)) {
@@ -87,5 +95,78 @@ public class UserService {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Получение пользователей с фильтрами по автомобилям.
+   *
+   * @param minYear минимальный год выпуска.
+   * @param maxYear максимальный год выпуска.
+   * @param minMileage минимальный пробег.
+   * @param maxMileage максимальный пробег.
+   * @param fuelType тип топлива.
+   * @param carName название автомобиля.
+   * @return список объектов UserDTO для пользователей с фильтрами по автомобилям.
+   */
+  public List<UserDTO> getUsersWithCarFilters(
+      Integer minYear,
+      Integer maxYear,
+      Integer minMileage,
+      Integer maxMileage,
+      String fuelType,
+      String carName) {
+    String cacheKey = buildCacheKey(minYear, maxYear, minMileage, maxMileage, fuelType, carName);
+    Optional<List<User>> cachedUsers = userCache.get(cacheKey);
+    final long startTime = System.currentTimeMillis();
+    if (cachedUsers.isPresent()) {
+      logger.debug("Returning cached users with filters");
+      return convertToDtoList(cachedUsers.get());
+    }
+
+    logger.debug("Cache not found, querying users with filters from database");
+    List<User> users = userRepository.findUsersWithCarFilters(
+        minYear, maxYear, minMileage, maxMileage, fuelType, carName);
+
+    userCache.put(cacheKey, users);
+
+    logger.info("Found {} users with car filters in {}ms", users.size(),
+        System.currentTimeMillis() - startTime);
+
+    return convertToDtoList(users);
+  }
+
+  /**
+   * Построение ключа для кэша с фильтрами.
+   *
+   * @param minYear минимальный год выпуска.
+   * @param maxYear максимальный год выпуска.
+   * @param minMileage минимальный пробег.
+   * @param maxMileage максимальный пробег.
+   * @param fuelType тип топлива.
+   * @param carName название автомобиля.
+   * @return строка, представляющая ключ для кэша.
+   */
+  private String buildCacheKey(Integer minYear, Integer maxYear,
+                               Integer minMileage, Integer maxMileage,
+                               String fuelType, String carName) {
+    return String.format("user_filter_%s_%s_%s_%s_%s_%s",
+        minYear != null ? minYear : "null",
+        maxYear != null ? maxYear : "null",
+        minMileage != null ? minMileage : "null",
+        maxMileage != null ? maxMileage : "null",
+        fuelType != null ? fuelType : "null",
+        carName != null ? carName : "null");
+  }
+
+  /**
+   * Преобразование списка пользователей в список UserDTO.
+   *
+   * @param users список пользователей.
+   * @return список объектов UserDTO.
+   */
+  private List<UserDTO> convertToDtoList(List<User> users) {
+    return users.stream()
+        .map(UserDTO::fromEntity)
+        .toList();
   }
 }

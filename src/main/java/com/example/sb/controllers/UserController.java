@@ -1,8 +1,10 @@
 package com.example.sb.controllers;
 
+import com.example.sb.cache.UserCache;
 import com.example.sb.schemas.UserDTO;
 import com.example.sb.service.UserService;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,32 +15,62 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * REST controller for handling user-related API requests.
+ * Контроллер для обработки запросов, связанных с пользователями.
  */
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
   private final UserService userService;
+  private final UserCache userCache;
 
   /**
-   * Constructs a {@code UserController} with the specified user service.
+   * Конструктор для инициализации контроллера с зависимостями.
    *
-   * @param userService the service to handle user operations
+   * @param userService сервис для работы с пользователями.
+   * @param userCache кэш пользователей.
    */
   @Autowired
-  public UserController(UserService userService) {
+  public UserController(UserService userService, UserCache userCache) {
     this.userService = userService;
+    this.userCache = userCache;
   }
 
   /**
-   * Creates a new user.
+   * Получение пользователей с фильтрами по автомобилям.
    *
-   * @param userDto the user data
-   * @return the created user
+   * @param carMinYear минимальный год автомобиля.
+   * @param carMaxYear максимальный год автомобиля.
+   * @param carMinMileage минимальный пробег.
+   * @param carMaxMileage максимальный пробег.
+   * @param carFuelType тип топлива автомобиля.
+   * @param carName название автомобиля.
+   * @return список пользователей с фильтрами по автомобилям.
+   */
+  @GetMapping("/info")
+  public ResponseEntity<List<UserDTO>> getUsersWithCarFilters(
+      @RequestParam(required = false) Integer carMinYear,
+      @RequestParam(required = false) Integer carMaxYear,
+      @RequestParam(required = false) Integer carMinMileage,
+      @RequestParam(required = false) Integer carMaxMileage,
+      @RequestParam(required = false) String carFuelType,
+      @RequestParam(required = false) String carName) {
+
+    return ResponseEntity.ok(userService.getUsersWithCarFilters(
+        carMinYear, carMaxYear,
+        carMinMileage, carMaxMileage,
+        carFuelType, carName));
+  }
+
+  /**
+   * Создание нового пользователя.
+   *
+   * @param userDto данные нового пользователя.
+   * @return созданный пользователь.
    */
   @PostMapping
   public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDto) {
@@ -47,9 +79,9 @@ public class UserController {
   }
 
   /**
-   * Retrieves all users.
+   * Получение всех пользователей.
    *
-   * @return list of all users
+   * @return список всех пользователей.
    */
   @GetMapping
   public ResponseEntity<List<UserDTO>> getAllUsers() {
@@ -58,10 +90,10 @@ public class UserController {
   }
 
   /**
-   * Retrieves a user by ID.
+   * Получение информации о пользователе по его идентификатору.
    *
-   * @param userId the ID of the user
-   * @return the user if found, otherwise 404
+   * @param userId идентификатор пользователя.
+   * @return найденный пользователь или ошибка 404.
    */
   @GetMapping("/{userId}")
   public ResponseEntity<UserDTO> getUserById(@PathVariable Long userId) {
@@ -70,32 +102,53 @@ public class UserController {
   }
 
   /**
-   * Updates an existing user.
+   * Обновление данных пользователя.
    *
-   * @param userId the ID of the user
-   * @param userDto the new user data
-   * @return the updated user if found, otherwise 404
+   * @param userId идентификатор пользователя.
+   * @param userDto обновленные данные пользователя.
+   * @return обновленный пользователь или ошибка 404.
    */
   @PutMapping("/{userId}")
   public ResponseEntity<UserDTO> updateUser(
-      @PathVariable Long userId, @RequestBody UserDTO userDto) {
+      @PathVariable Long userId,
+      @RequestBody UserDTO userDto) {
     Optional<UserDTO> updatedUser = userService.updateUser(userId, userDto);
     return updatedUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 
   /**
-   * Deletes a user by ID.
+   * Удаление пользователя по его идентификатору.
    *
-   * @param userId the ID of the user
-   * @return 200 OK if deleted, otherwise 404
+   * @param userId идентификатор пользователя.
+   * @return статус операции.
    */
   @DeleteMapping("/{userId}")
   public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
     boolean isDeleted = userService.deleteUser(userId);
     if (isDeleted) {
       return ResponseEntity.ok().build();
-    } else {
-      return ResponseEntity.notFound().build();
     }
+    return ResponseEntity.notFound().build();
+  }
+
+  /**
+   * Очистка кэша пользователей.
+   *
+   * @return статус операции.
+   */
+  @PostMapping("/cache/clear")
+  public ResponseEntity<Void> clearCache() {
+    userCache.clear();
+    return ResponseEntity.ok().build();
+  }
+
+  /**
+   * Получение статистики о кэше пользователей.
+   *
+   * @return статистика кэша.
+   */
+  @GetMapping("/cache/stats")
+  public ResponseEntity<Map<String, Object>> getCacheStats() {
+    return ResponseEntity.ok(userCache.getCacheStats());
   }
 }

@@ -3,32 +3,41 @@ package com.example.sb.schemas;
 import com.example.sb.models.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * Data Transfer Object for the {@link User} entity.
+ * Data transfer object for User.
  */
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDTO {
-
   private final Long id;
   private final String nickName;
   private final String email;
   private final String password;
+  private final List<CarDTO> cars;
 
   /**
-   * Constructs a {@code UserDTO} instance with all fields.
+   * Constructor for UserDTO.
    *
-   * @param id the user ID
-   * @param nickName the user's nickname
-   * @param email the user's email
-   * @param password the user's password
+   * @param id       user ID
+   * @param nickName user nickname
+   * @param email    user email
+   * @param password user password
+   * @param cars     list of user's cars
    */
-  public UserDTO(Long id, String nickName, String email, String password) {
+  public UserDTO(
+      Long id,
+      String nickName,
+      String email,
+      String password,
+      List<CarDTO> cars) {
     this.id = id;
     this.nickName = nickName;
     this.email = email;
     this.password = password;
+    this.cars = cars;
   }
 
   @JsonProperty("id")
@@ -51,24 +60,37 @@ public class UserDTO {
     return password;
   }
 
+  @JsonProperty("cars")
+  public List<CarDTO> getCars() {
+    return cars;
+  }
+
   /**
-   * Converts a {@link User} entity to a {@code UserDTO}.
+   * Converts a User entity to UserDTO.
    *
-   * @param user the user entity
-   * @return a corresponding DTO
+   * @param user User entity
+   * @return UserDTO instance
    */
   public static UserDTO fromEntity(User user) {
+    List<CarDTO> carDTOs = user.getCars() != null
+        ? user.getCars().stream()
+        .map(CarDTO::fromEntity)
+        .collect(Collectors.toList())
+        : null;
+
     return new UserDTO(
         user.getId(),
         user.getNickname(),
         user.getEmail(),
-        user.getPassword());
+        user.getPassword(),
+        carDTOs
+    );
   }
 
   /**
-   * Converts this DTO back to a {@link User} entity.
+   * Converts this DTO to a User entity.
    *
-   * @return the user entity
+   * @return User entity
    */
   public User toEntity() {
     return User.builder()
