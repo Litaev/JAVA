@@ -45,7 +45,7 @@ public class CarService {
    */
   @Transactional
   public CarDTO createCar(CarDTO carDto, Long userId) {
-    
+
     User user = new User();
     user.setId(userId);
     Car car = carDto.toEntity();

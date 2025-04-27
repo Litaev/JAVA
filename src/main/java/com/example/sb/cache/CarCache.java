@@ -19,197 +19,183 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * Класс CarCache реализует кэш для хранения данных о автомобилях.
- * Кэш использует `ConcurrentHashMap` для хранения записей, поддерживает ограничение по размеру и
- * время жизни записей.
- * Периодически выполняется очистка устаревших записей.
- * Методы включают добавление, извлечение и удаление записей из кэша, а также статистику о текущем
- * состоянии кэша.
+ * Класс CarCache реализует кэш для хранения данных об автомобилях.
+ * Кэш использует ConcurrentHashMap для хранения записей, поддерживает ограничение по размеру
+ * и время жизни записей. Периодически выполняется очистка устаревших записей.
  */
 @Component
 public class CarCache {
 
-  private static final Logger logger = LoggerFactory.getLogger(CarCache.class);
+  private static final Logger log = LoggerFactory.getLogger(CarCache.class);
 
-  private final Map<String, CacheEntry> cache = new ConcurrentHashMap<>();
-  private final AtomicInteger currentSize = new AtomicInteger(0);
-  private static final int MAX_SIZE = 1000;
-  private static final long DEFAULT_TTL = 30000; // 30 минут
-  private final ScheduledExecutorService cleanupExecutor;
+  private final Map<String, CacheEntry> storage = new ConcurrentHashMap<>();
+  private final AtomicInteger size = new AtomicInteger(0);
+  private static final int LIMIT = 1000;
+  private static final long TTL_DEFAULT = 30_000L;
+  private final ScheduledExecutorService cleaner;
 
   /**
    * Конструктор класса CarCache, инициализирует ScheduledExecutorService.
    */
   public CarCache() {
-    this.cleanupExecutor = Executors.newSingleThreadScheduledExecutor();
+    cleaner = Executors.newSingleThreadScheduledExecutor();
   }
 
   /**
    * Метод инициализации, который запускает периодическую очистку кэша.
    */
   @PostConstruct
-  public void init() {
-    // Очистка каждые 30 секунд
-    cleanupExecutor.scheduleAtFixedRate(
-        this::cleanupExpiredEntries,
-        30, 30, TimeUnit.SECONDS); // Изменили с 5 минут на 30 секунд
-    logger.info("CarCache initialized with periodic cleanup every 30 seconds");
+  public void setUp() {
+    cleaner.scheduleAtFixedRate(this::purgeExpired, 30, 30, TimeUnit.SECONDS);
+    log.info("CarCache initialized with cleanup task every 30 seconds");
   }
 
   /**
    * Метод для уничтожения ресурсов перед завершением работы.
    */
   @PreDestroy
-  public void destroy() {
-    cleanupExecutor.shutdownNow();
-    logger.info("CarCache destroyed");
+  public void tearDown() {
+    cleaner.shutdownNow();
+    log.info("CarCache resources cleaned up");
   }
 
+  /**
+   * Внутренний класс, представляющий запись в кэше.
+   */
   private static class CacheEntry {
-    final List<Car> data;
-    final long expiryTime;
-    final long createdTime;
+    private final List<Car> cars;
+    private final long expiresAt;
+    private final long createdAt;
 
     /**
      * Конструктор для создания записи кэша.
      *
-     * @param data данные, которые должны храниться в кэше.
-     * @param ttl время жизни записи в кэше.
+     * @param cars список автомобилей для хранения.
+     * @param ttl время жизни записи в миллисекундах.
      */
-    CacheEntry(List<Car> data, long ttl) {
-      this.data = List.copyOf(data);
-      this.expiryTime = System.currentTimeMillis() + ttl;
-      this.createdTime = System.currentTimeMillis();
+    CacheEntry(List<Car> cars, long ttl) {
+      this.cars = List.copyOf(cars);
+      long now = System.currentTimeMillis();
+      this.expiresAt = now + ttl;
+      this.createdAt = now;
     }
 
     /**
-     * Проверяет, истекло ли время жизни записи в кэше.
+     * Проверяет, истекло ли время жизни записи.
      *
      * @return true, если запись просрочена.
      */
-    boolean isExpired() {
-      return System.currentTimeMillis() > expiryTime;
+    boolean hasExpired() {
+      return System.currentTimeMillis() > expiresAt;
     }
   }
 
   /**
    * Добавляет или обновляет запись в кэше с использованием стандартного TTL.
    *
-   * @param key ключ для записи.
+   * @param key ключ записи.
    * @param cars список автомобилей.
    */
   public void put(String key, List<Car> cars) {
-    put(key, cars, DEFAULT_TTL);
+    put(key, cars, TTL_DEFAULT);
   }
 
   /**
    * Добавляет или обновляет запись в кэше с заданным TTL.
    *
-   * @param key ключ для записи.
+   * @param key ключ записи.
    * @param cars список автомобилей.
-   * @param ttl время жизни записи в кэше.
+   * @param ttl время жизни записи.
    */
   public synchronized void put(String key, List<Car> cars, long ttl) {
-    if (currentSize.get() >= MAX_SIZE) {
-      evictOldestEntries();
+    if (size.get() >= LIMIT) {
+      removeOldest();
     }
-
-    cache.put(key, new CacheEntry(cars, ttl));
-    currentSize.incrementAndGet();
+    storage.put(key, new CacheEntry(cars, ttl));
+    size.incrementAndGet();
   }
 
   /**
    * Получает данные из кэша по ключу.
    *
-   * @param key ключ для записи.
-   * @return данные в виде Optional, если запись не найдена или истекла.
+   * @param key ключ записи.
+   * @return данные в виде Optional, если запись найдена и не истекла.
    */
   public Optional<List<Car>> get(String key) {
-    CacheEntry entry = cache.get(key);
+    CacheEntry entry = storage.get(key);
     if (entry == null) {
       return Optional.empty();
     }
-
-    if (entry.isExpired()) {
-      cache.remove(key);
-      currentSize.decrementAndGet();
+    if (entry.hasExpired()) {
+      storage.remove(key);
+      size.decrementAndGet();
       return Optional.empty();
     }
-
-    return Optional.of(entry.data);
+    return Optional.of(entry.cars);
   }
 
   /**
    * Удаляет запись из кэша по ключу.
    *
-   * @param key ключ для записи.
+   * @param key ключ записи.
    */
   public synchronized void evict(String key) {
-    if (cache.remove(key) != null) {
-      currentSize.decrementAndGet();
+    if (storage.remove(key) != null) {
+      size.decrementAndGet();
     }
   }
 
   /**
-   * Очищает весь кэш.
+   * Полностью очищает кэш.
    */
   public synchronized void clear() {
-    long startTime = System.currentTimeMillis();
-    int clearedEntries = cache.size();
-    cache.clear();
-    currentSize.set(0);
-    logger.info("Cache CLEARED - removed {} entries in {}ms",
-        clearedEntries, System.currentTimeMillis() - startTime);
+    int removed = storage.size();
+    storage.clear();
+    size.set(0);
+    log.info("CarCache cleared: {} entries removed", removed);
   }
 
   /**
-   * Выполняет очистку устаревших записей из кэша.
+   * Выполняет очистку просроченных записей из кэша.
    */
-  private synchronized void cleanupExpiredEntries() {
-    long startTime = System.currentTimeMillis();
-    int initialSize = cache.size();
-
-    cache.entrySet().removeIf(entry -> {
-      boolean expired = entry.getValue().isExpired();
-      if (expired) {
-        currentSize.decrementAndGet();
+  private synchronized void purgeExpired() {
+    int before = storage.size();
+    storage.entrySet().removeIf(entry -> {
+      if (entry.getValue().hasExpired()) {
+        size.decrementAndGet();
+        return true;
       }
-      return expired;
+      return false;
     });
-
-    logger.info("Cache cleanup: removed {} expired entries in {}ms",
-        initialSize - cache.size(), System.currentTimeMillis() - startTime);
+    int after = storage.size();
+    log.info("CarCache cleanup: {} expired entries removed", (before - after));
   }
 
   /**
-   * Удаляет старейшие записи из кэша.
+   * Удаляет старейшие записи из кэша, если превышен лимит.
    */
-  private synchronized void evictOldestEntries() {
-    long startTime = System.currentTimeMillis();
-
-    cache.entrySet().stream()
-        .sorted(Comparator.comparingLong(entry -> entry.getValue().createdTime))
+  private synchronized void removeOldest() {
+    storage.entrySet().stream()
+        .sorted(Comparator.comparingLong(e -> e.getValue().createdAt))
         .limit(100)
         .forEach(entry -> {
-          cache.remove(entry.getKey());
-          currentSize.decrementAndGet();
+          storage.remove(entry.getKey());
+          size.decrementAndGet();
         });
-
-    logger.info("Evicted {} oldest entries in {}ms",
-        100, System.currentTimeMillis() - startTime);
+    log.info("CarCache evicted 100 oldest entries to maintain size limit");
   }
 
   /**
-   * Возвращает статистику кэша.
+   * Возвращает статистику состояния кэша.
    *
    * @return карта с текущими статистическими данными.
    */
-  public Map<String, Object> getCacheStats() {
+  public Map<String, Object> getStats() {
     Map<String, Object> stats = new HashMap<>();
-    stats.put("currentSize", currentSize.get());
-    stats.put("maxSize", MAX_SIZE);
-    stats.put("defaultTtl", DEFAULT_TTL);
-    stats.put("lastCleanup", new Date());
+    stats.put("currentSize", size.get());
+    stats.put("maxSize", LIMIT);
+    stats.put("defaultTTL", TTL_DEFAULT);
+    stats.put("timestamp", new Date());
     return stats;
   }
 }
