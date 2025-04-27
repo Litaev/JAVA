@@ -32,7 +32,7 @@ public class UserCache {
   private final Map<String, CacheEntry> cache = new ConcurrentHashMap<>();
   private final AtomicInteger currentSize = new AtomicInteger(0);
   private static final int MAX_SIZE = 1000;
-  private static final long DEFAULT_TTL = 30000; // 30 минут
+  private static final long DEFAULT_TTL = 30000;
   private final ScheduledExecutorService cleanupExecutor;
 
   /**
@@ -126,18 +126,15 @@ public class UserCache {
   public Optional<List<User>> get(String key) {
     CacheEntry entry = cache.get(key);
     if (entry == null) {
-      logger.debug("UserCache MISS - key: {}", key);
       return Optional.empty();
     }
 
     if (entry.isExpired()) {
       cache.remove(key);
       currentSize.decrementAndGet();
-      logger.debug("UserCache EXPIRED - key: {}", key);
       return Optional.empty();
     }
 
-    logger.debug("UserCache HIT - key: {}", key);
     return Optional.of(entry.data);
   }
 
@@ -149,7 +146,6 @@ public class UserCache {
   public synchronized void evict(String key) {
     if (cache.remove(key) != null) {
       currentSize.decrementAndGet();
-      logger.debug("UserCache EVICT - key: {}", key);
     }
   }
 

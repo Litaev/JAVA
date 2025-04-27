@@ -116,7 +116,6 @@ public class CarCache {
 
     cache.put(key, new CacheEntry(cars, ttl));
     currentSize.incrementAndGet();
-    logger.debug("Cache PUT - key: {}, size: {}", key, cars.size());
   }
 
   /**
@@ -128,18 +127,15 @@ public class CarCache {
   public Optional<List<Car>> get(String key) {
     CacheEntry entry = cache.get(key);
     if (entry == null) {
-      logger.debug("Cache MISS - key: {}", key);
       return Optional.empty();
     }
 
     if (entry.isExpired()) {
       cache.remove(key);
       currentSize.decrementAndGet();
-      logger.debug("Cache EXPIRED - key: {}", key);
       return Optional.empty();
     }
 
-    logger.debug("Cache HIT - key: {}", key);
     return Optional.of(entry.data);
   }
 
@@ -151,7 +147,6 @@ public class CarCache {
   public synchronized void evict(String key) {
     if (cache.remove(key) != null) {
       currentSize.decrementAndGet();
-      logger.debug("Cache EVICT - key: {}", key);
     }
   }
 

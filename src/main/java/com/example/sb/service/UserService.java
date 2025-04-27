@@ -129,8 +129,6 @@ public class UserService {
 
     userCache.put(cacheKey, users);
 
-    logger.info("Found {} users with car filters in {}ms", users.size(),
-        System.currentTimeMillis() - startTime);
 
     return convertToDtoList(users);
   }

@@ -55,10 +55,6 @@ public class CarService {
     Car savedCar = carRepository.save(car);
     invalidateUserCache(userId);
 
-    logger.info(
-        "Created car ID: {} for user ID: {} in {}ms",
-        savedCar.getId(), userId, System.currentTimeMillis() - startTime
-    );
 
     return CarDTO.fromEntity(savedCar);
   }
@@ -74,25 +70,14 @@ public class CarService {
     final long startTime = System.currentTimeMillis(); // Объявление сразу перед использованием.
     String cacheKey = getCacheKey(userId);
 
-    logger.debug("Attempting to get user {} cars from cache", userId);
     Optional<List<Car>> cachedCars = carCache.get(cacheKey);
 
     if (cachedCars.isPresent()) {
-      logger.debug(
-          "Cache found for user {}, number of cars: {}",
-          userId, cachedCars.get().size()
-      );
       return convertToDtoList(cachedCars.get());
     }
 
-    logger.debug("Cache not found for user {}, querying the database", userId);
     List<Car> cars = carRepository.findByOwnerId(userId);
     carCache.put(cacheKey, cars);
-
-    logger.info(
-        "Fetched {} cars from DB for user {} in {}ms",
-        cars.size(), userId, System.currentTimeMillis() - startTime
-    );
 
     return convertToDtoList(cars);
   }
@@ -124,14 +109,10 @@ public class CarService {
         "%s_filter_%s_%s_%s_%s_%s_%s",
         getCacheKey(userId), name, fuelType, minYear, maxYear, minMileage, maxMileage
     );
-    
+
 
     Optional<List<Car>> cachedCars = carCache.get(cacheKey);
     if (cachedCars.isPresent()) {
-      logger.debug(
-          "Cache found for filtered cars, key: {}, number of cars: {}",
-          cacheKey, cachedCars.get().size()
-      );
       return convertToDtoList(cachedCars.get());
     }
 
@@ -140,13 +121,6 @@ public class CarService {
         userId, name, fuelType, minYear, maxYear, minMileage, maxMileage
     );
     carCache.put(cacheKey, cars);
-
-    logger.info(
-        "Query with filters executed for user {} in {}ms. Found {} cars. Filters: "
-            + "name={}, fuelType={}, year={}-{}, mileage={}-{}",
-        userId, System.currentTimeMillis() - startTime, cars.size(),
-        name, fuelType, minYear, maxYear, minMileage, maxMileage
-    );
 
     return convertToDtoList(cars);
   }
@@ -164,14 +138,8 @@ public class CarService {
 
     Optional<Car> car = carRepository.findByIdAndOwnerId(carId, userId);
     if (car.isPresent()) {
-      logger.debug(
-          "Found car ID: {} for user {} in {}ms",
-          carId, userId, System.currentTimeMillis() - startTime
-      );
       return car.map(CarDTO::fromEntity);
     }
-
-    logger.debug("Car ID: {} not found for user {}", carId, userId);
     return Optional.empty();
   }
 
@@ -188,7 +156,6 @@ public class CarService {
     final long startTime = System.currentTimeMillis(); // Объявление сразу перед использованием.
 
     if (!carRepository.existsByIdAndOwnerId(carId, userId)) {
-      logger.warn("Update not possible — car ID: {} not found for user {}", carId, userId);
       return Optional.empty();
     }
 
@@ -200,11 +167,6 @@ public class CarService {
 
     Car updatedCar = carRepository.save(car);
     invalidateUserCache(userId);
-
-    logger.info(
-        "Updated car ID: {} for user {} in {}ms",
-        carId, userId, System.currentTimeMillis() - startTime
-    );
 
     return Optional.of(CarDTO.fromEntity(updatedCar));
   }
@@ -221,17 +183,11 @@ public class CarService {
     final long startTime = System.currentTimeMillis(); // Объявление сразу перед использованием.
 
     if (!carRepository.existsByIdAndOwnerId(carId, userId)) {
-      logger.warn("Deletion not possible — car ID: {} not found for user {}", carId, userId);
       return false;
     }
 
     carRepository.deleteById(carId);
     invalidateUserCache(userId);
-
-    logger.info(
-        "Deleted car ID: {} for user {} in {}ms",
-        carId, userId, System.currentTimeMillis() - startTime
-    );
 
     return true;
   }
@@ -243,7 +199,6 @@ public class CarService {
    */
   public void clearUserCache(Long userId) {
     carCache.evict(getCacheKey(userId));
-    logger.info("Cleared cache for user ID: {}", userId);
   }
 
   /**
@@ -251,7 +206,6 @@ public class CarService {
    */
   public void clearAllCache() {
     carCache.clear();
-    logger.info("Completely cleared car cache");
   }
 
   private List<CarDTO> convertToDtoList(List<Car> cars) {
@@ -266,6 +220,5 @@ public class CarService {
 
   private void invalidateUserCache(Long userId) {
     carCache.evict(getCacheKey(userId));
-    logger.debug("Cache for user ID: {} invalidated", userId);
   }
 }
