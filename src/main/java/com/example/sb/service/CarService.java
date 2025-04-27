@@ -45,8 +45,7 @@ public class CarService {
    */
   @Transactional
   public CarDTO createCar(CarDTO carDto, Long userId) {
-    final long startTime = System.currentTimeMillis(); // Объявление сразу перед использованием.
-
+    
     User user = new User();
     user.setId(userId);
     Car car = carDto.toEntity();
