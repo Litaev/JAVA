@@ -31,7 +31,7 @@ public class CarService {
    * @param carCache кэш для автомобилей.
    */
   @Autowired
-  public CarService(CarRepository carRepository, CarCache carCache) {
+  public CarService(CarRepository carRepository, CarCache carCache, UserService userService) {
     this.carRepository = carRepository;
     this.carCache = carCache;
   }
@@ -102,23 +102,9 @@ public class CarService {
       Integer minMileage,
       Integer maxMileage
   ) {
-    String cacheKey = String.format(
-        "%s_filter_%s_%s_%s_%s_%s_%s",
-        getCacheKey(userId), name, fuelType, minYear, maxYear, minMileage, maxMileage
-    );
-
-
-    Optional<List<Car>> cachedCars = carCache.get(cacheKey);
-    if (cachedCars.isPresent()) {
-      return convertToDtoList(cachedCars.get());
-    }
-
-    logger.debug("Cache not found, performing query in the database");
     List<Car> cars = carRepository.findByOwnerIdWithFilters(
         userId, name, fuelType, minYear, maxYear, minMileage, maxMileage
     );
-    carCache.put(cacheKey, cars);
-
     return convertToDtoList(cars);
   }
 
@@ -179,20 +165,10 @@ public class CarService {
     if (!carRepository.existsByIdAndOwnerId(carId, userId)) {
       return false;
     }
-
     carRepository.deleteById(carId);
     invalidateUserCache(userId);
 
     return true;
-  }
-
-  /**
-   * Очистка кэша машин одного пользователя.
-   *
-   * @param userId идентификатор пользователя.
-   */
-  public void clearUserCache(Long userId) {
-    carCache.evict(getCacheKey(userId));
   }
 
   /**

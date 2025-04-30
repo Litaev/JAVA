@@ -4,8 +4,6 @@ import com.example.sb.models.Car;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,12 +24,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class CarCache {
 
+
   private static final Logger log = LoggerFactory.getLogger(CarCache.class);
 
   private final Map<String, CacheEntry> storage = new ConcurrentHashMap<>();
   private final AtomicInteger size = new AtomicInteger(0);
-  private static final int LIMIT = 1000;
-  private static final long TTL_DEFAULT = 30_000L;
+  private static final int LIMIT = 100;
+  private static final int LIMIT_AFTER_OVERFLOW = 50;
+  private static final long TTL_DEFAULT = 300000;
   private final ScheduledExecutorService cleaner;
 
   /**
@@ -46,8 +46,8 @@ public class CarCache {
    */
   @PostConstruct
   public void setUp() {
-    cleaner.scheduleAtFixedRate(this::purgeExpired, 30, 30, TimeUnit.SECONDS);
-    log.info("CarCache initialized with cleanup task every 30 seconds");
+    cleaner.scheduleAtFixedRate(this::purgeExpired, 300, 300, TimeUnit.SECONDS);
+    log.info("CarCache initialized with cleanup task every 300 seconds");
   }
 
   /**
@@ -177,25 +177,12 @@ public class CarCache {
   private synchronized void removeOldest() {
     storage.entrySet().stream()
         .sorted(Comparator.comparingLong(e -> e.getValue().createdAt))
-        .limit(100)
+        .limit(LIMIT_AFTER_OVERFLOW)
         .forEach(entry -> {
           storage.remove(entry.getKey());
           size.decrementAndGet();
         });
-    log.info("CarCache evicted 100 oldest entries to maintain size limit");
+    log.info("CarCache evicted {} oldest entries to maintain size limit", LIMIT_AFTER_OVERFLOW);
   }
 
-  /**
-   * Возвращает статистику состояния кэша.
-   *
-   * @return карта с текущими статистическими данными.
-   */
-  public Map<String, Object> getStats() {
-    Map<String, Object> stats = new HashMap<>();
-    stats.put("currentSize", size.get());
-    stats.put("maxSize", LIMIT);
-    stats.put("defaultTTL", TTL_DEFAULT);
-    stats.put("timestamp", new Date());
-    return stats;
-  }
 }
