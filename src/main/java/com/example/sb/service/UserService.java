@@ -22,6 +22,8 @@ public class UserService {
 
   @Transactional
   public UserDTO createUser(UserDTO userDto) {
+    // Проверка валидности email и пароля происходит автоматически через аннотации в DTO
+
     if (userRepository.existsByEmail(userDto.getEmail())) {
       throw new ValidationException("Email already exists");
     }
@@ -30,7 +32,8 @@ public class UserService {
     }
 
     User user = userDto.toEntity();
-    return UserDTO.fromEntity(userRepository.save(user));
+    User savedUser = userRepository.save(user);
+    return UserDTO.fromEntity(savedUser);
   }
 
   public List<UserDTO> getAllUsers() {

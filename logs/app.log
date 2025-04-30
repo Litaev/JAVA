@@ -1,22 +1,48 @@
-2025-04-30 06:07:23 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
-2025-04-30 06:07:23 INFO  com.example.sb.SbApplication - Starting SbApplication using Java 23.0.2 with PID 7100 (D:\Projects\Java\sb\target\classes started by Professional in D:\Projects\Java\sb)
-2025-04-30 06:07:23 INFO  com.example.sb.SbApplication - No active profile set, falling back to 1 default profile: "default"
-2025-04-30 06:07:23 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-04-30 06:07:23 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 45 ms. Found 2 JPA repository interfaces.
-2025-04-30 06:07:24 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2025-04-30 06:07:24 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
-2025-04-30 06:07:24 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
-2025-04-30 06:07:24 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.34]
-2025-04-30 06:07:24 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
-2025-04-30 06:07:24 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1316 ms
-2025-04-30 06:07:24 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-04-30 06:07:24 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.5.Final
-2025-04-30 06:07:24 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
-2025-04-30 06:07:25 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-04-30 06:07:25 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
-2025-04-30 06:07:25 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@51de5efa
-2025-04-30 06:07:25 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
-2025-04-30 06:07:25 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+2025-04-30 10:46:53 INFO  c.example.sb.aspects.LoggingAspect - Entering method: CarController.createCarsBulk(..) with arguments: [[com.example.sb.schemas.CarDTO@5d8f6a97, com.example.sb.schemas.CarDTO@53489f56], 12]
+2025-04-30 10:46:53 INFO  c.example.sb.aspects.LoggingAspect - Exiting method: CarController.createCarsBulk(..) with result: <200 OK OK,[com.example.sb.schemas.CarDTO@6df2c892, com.example.sb.schemas.CarDTO@353de8f6],[]> (execution time: 7ms)
+2025-04-30 10:47:03 INFO  c.example.sb.aspects.LoggingAspect - Entering method: CarController.getAllCars(..) with arguments: [12]
+2025-04-30 10:47:03 INFO  c.example.sb.aspects.LoggingAspect - Exiting method: CarController.getAllCars(..) with result: <200 OK OK,[com.example.sb.schemas.CarDTO@31fb75be, com.example.sb.schemas.CarDTO@f773ae, com.example.sb.schemas.CarDTO@48f68db2, com.example.sb.schemas.CarDTO@5e163dff, com.example.sb.schemas.CarDTO@342ae506, com.example.sb.schemas.CarDTO@f7b8a2e, com.example.sb.schemas.CarDTO@731c0d6e, com.example.sb.schemas.CarDTO@1c0a2f37, com.example.sb.schemas.CarDTO@7f6bfb65],[]> (execution time: 239ms)
+2025-04-30 10:47:32 INFO  o.s.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 696 ms
+2025-04-30 10:48:16 INFO  c.example.sb.aspects.LoggingAspect - Entering method: LogController.downloadLogFile(..) with arguments: [2025-04-30]
+2025-04-30 10:48:16 INFO  c.example.sb.aspects.LoggingAspect - Exiting method: LogController.downloadLogFile(..) with result: <200 OK OK,file [D:\Projects\Java\sb\logs\app-2025-04-30_20250430104816.log],[Content-Type:"application/octet-stream", Content-Disposition:"attachment; filename="logs_2025-04-30_20250430104816.log""]> (execution time: 5ms)
+2025-04-30 10:48:41 WARN  o.s.web.servlet.PageNotFound - No mapping for GET /api/users/12/cars/
+2025-04-30 10:48:41 WARN  c.e.s.e.ExceptionHandlerController - No handler found for GET /api/users/12/cars/, returning 404 status
+2025-04-30 10:49:06 INFO  c.example.sb.aspects.LoggingAspect - Entering method: CarController.getCarsWithFilters(..) with arguments: [12, null, null, null, null, 12121121, null]
+2025-04-30 10:49:06 ERROR c.example.sb.aspects.LoggingAspect - Exception in method: CarController.getCarsWithFilters(..) with message: getCarsWithFilters.minMileage: Mileage must be less than 1,000,000
+2025-04-30 10:49:06 WARN  c.e.s.e.ExceptionHandlerController - Constraint violation: getCarsWithFilters.minMileage: Mileage must be less than 1,000,000, returning 400 status
+2025-04-30 10:49:13 INFO  c.example.sb.aspects.LoggingAspect - Entering method: CarController.getCarsWithFilters(..) with arguments: [12, null, null, null, null, -1, null]
+2025-04-30 10:49:13 ERROR c.example.sb.aspects.LoggingAspect - Exception in method: CarController.getCarsWithFilters(..) with message: getCarsWithFilters.minMileage: Mileage cannot be negative
+2025-04-30 10:49:13 WARN  c.e.s.e.ExceptionHandlerController - Constraint violation: getCarsWithFilters.minMileage: Mileage cannot be negative, returning 400 status
+2025-04-30 10:49:19 WARN  c.e.s.e.ExceptionHandlerController - Argument type mismatch: Method parameter 'minMileage': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Integer'; For input string: "fhghg", returning 400 status
+2025-04-30 10:49:24 INFO  c.example.sb.aspects.LoggingAspect - Entering method: LogController.downloadLogFile(..) with arguments: [2025-04-30]
+2025-04-30 10:49:24 INFO  c.example.sb.aspects.LoggingAspect - Exiting method: LogController.downloadLogFile(..) with result: <200 OK OK,file [D:\Projects\Java\sb\logs\app-2025-04-30_20250430104924.log],[Content-Type:"application/octet-stream", Content-Disposition:"attachment; filename="logs_2025-04-30_20250430104924.log""]> (execution time: 3ms)
+2025-04-30 10:49:52 INFO  com.example.sb.cache.CarCache - CarCache cleanup: 0 expired entries removed
+2025-04-30 10:54:52 INFO  com.example.sb.cache.CarCache - CarCache cleanup: 1 expired entries removed
+2025-04-30 10:56:53 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-04-30 10:56:53 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-04-30 10:56:53 INFO  com.example.sb.cache.CarCache - CarCache resources cleaned up
+2025-04-30 10:56:53 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-04-30 10:56:53 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-04-30 10:56:53 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-04-30 11:10:25 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
+2025-04-30 11:10:25 INFO  com.example.sb.SbApplication - Starting SbApplication using Java 23.0.2 with PID 5644 (D:\Projects\Java\sb\target\classes started by Professional in D:\Projects\Java\sb)
+2025-04-30 11:10:25 INFO  com.example.sb.SbApplication - No active profile set, falling back to 1 default profile: "default"
+2025-04-30 11:10:26 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-04-30 11:10:26 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 45 ms. Found 2 JPA repository interfaces.
+2025-04-30 11:10:26 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-04-30 11:10:26 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-04-30 11:10:26 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-04-30 11:10:26 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.34]
+2025-04-30 11:10:26 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-04-30 11:10:26 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1447 ms
+2025-04-30 11:10:26 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-04-30 11:10:27 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.5.Final
+2025-04-30 11:10:27 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-04-30 11:10:27 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-04-30 11:10:27 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-04-30 11:10:27 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@780129bc
+2025-04-30 11:10:27 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-04-30 11:10:27 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
 	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
 	Database driver: undefined/unknown
 	Database version: 17.4
@@ -24,74 +50,19 @@
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2025-04-30 06:07:26 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2025-04-30 06:07:26 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-04-30 06:07:26 INFO  com.example.sb.cache.CarCache - CarCache initialized with cleanup task every 300 seconds
-2025-04-30 06:07:26 INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
-2025-04-30 06:07:27 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-04-30 06:07:27 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
-2025-04-30 06:07:27 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
-2025-04-30 06:07:27 INFO  com.example.sb.SbApplication - Started SbApplication in 5.236 seconds (process running for 5.911)
-2025-04-30 06:07:32 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-04-30 06:07:32 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
-2025-04-30 06:07:32 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
-2025-04-30 06:07:32 WARN  o.s.web.servlet.PageNotFound - No mapping for GET /api/user
-2025-04-30 06:07:32 WARN  c.e.s.e.ExceptionHandlerController - No handler found for GET /api/user, returning 404 status
-2025-04-30 06:11:01 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
-2025-04-30 06:11:01 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
-2025-04-30 06:11:01 INFO  com.example.sb.cache.CarCache - CarCache resources cleaned up
-2025-04-30 06:11:01 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-04-30 06:11:01 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
-2025-04-30 06:11:01 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
-2025-04-30 06:26:22 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
-2025-04-30 06:26:22 INFO  com.example.sb.SbApplication - Starting SbApplication using Java 23.0.2 with PID 11660 (D:\Projects\Java\sb\target\classes started by Professional in D:\Projects\Java\sb)
-2025-04-30 06:26:22 INFO  com.example.sb.SbApplication - No active profile set, falling back to 1 default profile: "default"
-2025-04-30 06:26:23 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-04-30 06:26:23 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 67 ms. Found 2 JPA repository interfaces.
-2025-04-30 06:26:23 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2025-04-30 06:26:23 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
-2025-04-30 06:26:23 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
-2025-04-30 06:26:23 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.34]
-2025-04-30 06:26:23 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
-2025-04-30 06:26:23 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1641 ms
-2025-04-30 06:26:24 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-04-30 06:26:24 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.5.Final
-2025-04-30 06:26:24 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
-2025-04-30 06:26:24 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-04-30 06:26:24 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
-2025-04-30 06:26:24 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@605eb072
-2025-04-30 06:26:24 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
-2025-04-30 06:26:24 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
-	Database driver: undefined/unknown
-	Database version: 17.4
-	Autocommit mode: undefined/unknown
-	Isolation level: undefined/unknown
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2025-04-30 06:26:25 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2025-04-30 06:26:26 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-04-30 06:26:26 INFO  com.example.sb.cache.CarCache - CarCache initialized with cleanup task every 300 seconds
-2025-04-30 06:26:26 INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
-2025-04-30 06:26:27 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-04-30 06:26:27 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
-2025-04-30 06:26:27 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
-2025-04-30 06:26:27 INFO  com.example.sb.SbApplication - Started SbApplication in 6.36 seconds (process running for 7.265)
-2025-04-30 06:26:36 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-04-30 06:26:36 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
-2025-04-30 06:26:36 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
-2025-04-30 06:26:36 INFO  c.example.sb.aspects.LoggingAspect - Entering method: UserController.getAllUsers() with arguments: []
-2025-04-30 06:26:36 INFO  c.example.sb.aspects.LoggingAspect - Exiting method: UserController.getAllUsers() with result: <200 OK OK,[com.example.sb.schemas.UserDTO@605bb3b9, com.example.sb.schemas.UserDTO@7aaf26fb, com.example.sb.schemas.UserDTO@4215b75b, com.example.sb.schemas.UserDTO@5faddd2f, com.example.sb.schemas.UserDTO@62d66b18, com.example.sb.schemas.UserDTO@614d1147, com.example.sb.schemas.UserDTO@e0dcd5a, com.example.sb.schemas.UserDTO@3f782d11, com.example.sb.schemas.UserDTO@6ea70f4d, com.example.sb.schemas.UserDTO@67e9ecf7],[]> (execution time: 133ms)
-2025-04-30 06:26:47 INFO  c.example.sb.aspects.LoggingAspect - Entering method: UserController.getUserById(..) with arguments: [12]
-2025-04-30 06:26:47 INFO  c.example.sb.aspects.LoggingAspect - Exiting method: UserController.getUserById(..) with result: <200 OK OK,com.example.sb.schemas.UserDTO@25ba4717,[]> (execution time: 12ms)
-2025-04-30 06:26:52 INFO  c.example.sb.aspects.LoggingAspect - Entering method: CarController.getAllCars(..) with arguments: [12]
-2025-04-30 06:26:52 INFO  c.example.sb.aspects.LoggingAspect - Exiting method: CarController.getAllCars(..) with result: <200 OK OK,[com.example.sb.schemas.CarDTO@519fdab1, com.example.sb.schemas.CarDTO@5782e817, com.example.sb.schemas.CarDTO@5c29c038, com.example.sb.schemas.CarDTO@4069618c, com.example.sb.schemas.CarDTO@6f0c7162],[]> (execution time: 24ms)
-2025-04-30 06:26:57 INFO  c.example.sb.aspects.LoggingAspect - Entering method: CarController.getCarById(..) with arguments: [124, 12]
-2025-04-30 06:26:57 INFO  c.example.sb.aspects.LoggingAspect - Exiting method: CarController.getCarById(..) with result: <200 OK OK,com.example.sb.schemas.CarDTO@6d9ff65,[]> (execution time: 20ms)
-2025-04-30 06:28:55 INFO  c.example.sb.aspects.LoggingAspect - Entering method: CarController.getCarById(..) with arguments: [12443434, 12]
-2025-04-30 06:28:55 INFO  c.example.sb.aspects.LoggingAspect - Exiting method: CarController.getCarById(..) with result: <404 NOT_FOUND Not Found,[]> (execution time: 4ms)
-2025-04-30 06:29:05 ERROR c.example.sb.aspects.LoggingAspect - Handling exception in method: ExceptionHandlerController.handleGenericException(..) with message: Request method 'POST' is not supported
-2025-04-30 06:29:05 ERROR c.e.s.e.ExceptionHandlerController - Unexpected error occurred: Request method 'POST' is not supported, returning 500 status
+2025-04-30 11:10:28 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-04-30 11:10:28 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-04-30 11:10:28 INFO  com.example.sb.cache.CarCache - CarCache initialized with cleanup task every 300 seconds
+2025-04-30 11:10:28 INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-04-30 11:10:29 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-04-30 11:10:30 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-04-30 11:10:30 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-04-30 11:10:30 INFO  com.example.sb.SbApplication - Started SbApplication in 5.558 seconds (process running for 6.421)
+2025-04-30 11:10:49 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-04-30 11:10:49 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-04-30 11:10:49 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-04-30 11:10:49 ERROR c.example.sb.aspects.LoggingAspect - Handling exception in method: ExceptionHandlerController.handleGenericException(..) with message: Request method 'POST' is not supported
+2025-04-30 11:10:49 ERROR c.e.s.e.ExceptionHandlerController - Unexpected error occurred: Request method 'POST' is not supported, returning 500 status
 org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'POST' is not supported
 	at org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping.handleNoMatch(RequestMappingInfoHandlerMapping.java:267)
 	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.lookupHandlerMethod(AbstractHandlerMethodMapping.java:441)
@@ -140,32 +111,33 @@ org.springframework.web.HttpRequestMethodNotSupportedException: Request method '
 	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
 	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
 	at java.base/java.lang.Thread.run(Thread.java:1575)
-2025-04-30 06:31:26 INFO  com.example.sb.cache.CarCache - CarCache cleanup: 0 expired entries removed
-2025-04-30 06:35:43 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
-2025-04-30 06:35:43 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
-2025-04-30 06:35:43 INFO  com.example.sb.cache.CarCache - CarCache resources cleaned up
-2025-04-30 06:35:43 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-04-30 06:35:43 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
-2025-04-30 06:35:43 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
-2025-04-30 07:10:02 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
-2025-04-30 07:10:02 INFO  com.example.sb.SbApplication - Starting SbApplication using Java 23.0.2 with PID 13064 (D:\Projects\Java\sb\target\classes started by Professional in D:\Projects\Java\sb)
-2025-04-30 07:10:02 INFO  com.example.sb.SbApplication - No active profile set, falling back to 1 default profile: "default"
-2025-04-30 07:10:03 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-04-30 07:10:03 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 43 ms. Found 2 JPA repository interfaces.
-2025-04-30 07:10:03 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2025-04-30 07:10:03 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
-2025-04-30 07:10:03 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
-2025-04-30 07:10:03 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.34]
-2025-04-30 07:10:03 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
-2025-04-30 07:10:03 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1414 ms
-2025-04-30 07:10:04 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-04-30 07:10:04 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.5.Final
-2025-04-30 07:10:04 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
-2025-04-30 07:10:04 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-04-30 07:10:04 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
-2025-04-30 07:10:04 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@69d7bc1a
-2025-04-30 07:10:04 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
-2025-04-30 07:10:04 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+2025-04-30 11:11:00 INFO  c.example.sb.aspects.LoggingAspect - Entering method: CarController.createCarsBulk(..) with arguments: [[com.example.sb.schemas.CarDTO@7a6aeb70, com.example.sb.schemas.CarDTO@59a18942], 12]
+2025-04-30 11:11:00 INFO  c.example.sb.aspects.LoggingAspect - Exiting method: CarController.createCarsBulk(..) with result: <200 OK OK,[com.example.sb.schemas.CarDTO@672b558d, com.example.sb.schemas.CarDTO@7220aada],[]> (execution time: 145ms)
+2025-04-30 11:11:41 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-04-30 11:11:41 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-04-30 11:11:41 INFO  com.example.sb.cache.CarCache - CarCache resources cleaned up
+2025-04-30 11:11:41 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-04-30 11:11:41 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-04-30 11:11:41 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-04-30 11:11:45 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.2.Final
+2025-04-30 11:11:45 INFO  com.example.sb.SbApplication - Starting SbApplication using Java 23.0.2 with PID 10880 (D:\Projects\Java\sb\target\classes started by Professional in D:\Projects\Java\sb)
+2025-04-30 11:11:45 INFO  com.example.sb.SbApplication - No active profile set, falling back to 1 default profile: "default"
+2025-04-30 11:11:46 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-04-30 11:11:46 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 68 ms. Found 2 JPA repository interfaces.
+2025-04-30 11:11:47 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-04-30 11:11:47 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-04-30 11:11:47 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-04-30 11:11:47 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.34]
+2025-04-30 11:11:47 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-04-30 11:11:47 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2267 ms
+2025-04-30 11:11:47 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-04-30 11:11:47 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.5.Final
+2025-04-30 11:11:47 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-04-30 11:11:48 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-04-30 11:11:48 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-04-30 11:11:48 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@55554378
+2025-04-30 11:11:48 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-04-30 11:11:49 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
 	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
 	Database driver: undefined/unknown
 	Database version: 17.4
@@ -173,30 +145,17 @@ org.springframework.web.HttpRequestMethodNotSupportedException: Request method '
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2025-04-30 07:10:05 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2025-04-30 07:10:05 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-04-30 07:10:05 INFO  com.example.sb.cache.CarCache - CarCache initialized with cleanup task every 300 seconds
-2025-04-30 07:10:05 INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
-2025-04-30 07:10:06 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-04-30 07:10:07 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
-2025-04-30 07:10:07 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
-2025-04-30 07:10:07 INFO  com.example.sb.SbApplication - Started SbApplication in 5.438 seconds (process running for 6.129)
-2025-04-30 07:10:15 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-04-30 07:10:15 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
-2025-04-30 07:10:15 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
-2025-04-30 07:10:15 INFO  c.example.sb.aspects.LoggingAspect - Entering method: CarController.getCarById(..) with arguments: [12443434, 12]
-2025-04-30 07:10:15 INFO  c.example.sb.aspects.LoggingAspect - Exiting method: CarController.getCarById(..) with result: <404 NOT_FOUND Not Found,[]> (execution time: 166ms)
-2025-04-30 07:10:21 INFO  c.example.sb.aspects.LoggingAspect - Entering method: CarController.getAllCars(..) with arguments: [12]
-2025-04-30 07:10:21 INFO  c.example.sb.aspects.LoggingAspect - Exiting method: CarController.getAllCars(..) with result: <200 OK OK,[com.example.sb.schemas.CarDTO@790a53b8, com.example.sb.schemas.CarDTO@1fb595da, com.example.sb.schemas.CarDTO@5be44cab, com.example.sb.schemas.CarDTO@55cc455a, com.example.sb.schemas.CarDTO@7e704bc8],[]> (execution time: 24ms)
-2025-04-30 07:10:43 INFO  c.example.sb.aspects.LoggingAspect - Entering method: CarController.getCarsWithFilters(..) with arguments: [12, null, null, null, null, -1, null]
-2025-04-30 07:10:43 ERROR c.example.sb.aspects.LoggingAspect - Exception in method: CarController.getCarsWithFilters(..) with message: getCarsWithFilters.minMileage: Mileage cannot be negative
-2025-04-30 07:10:43 WARN  c.e.s.e.ExceptionHandlerController - Constraint violation: getCarsWithFilters.minMileage: Mileage cannot be negative, returning 400 status
-2025-04-30 07:10:50 INFO  c.example.sb.aspects.LoggingAspect - Entering method: CarController.getCarsWithFilters(..) with arguments: [12, null, null, null, null, null, null]
-2025-04-30 07:10:50 INFO  c.example.sb.aspects.LoggingAspect - Exiting method: CarController.getCarsWithFilters(..) with result: <200 OK OK,[com.example.sb.schemas.CarDTO@413f71a6, com.example.sb.schemas.CarDTO@d69ee03, com.example.sb.schemas.CarDTO@5d158ae5, com.example.sb.schemas.CarDTO@30a4cce0, com.example.sb.schemas.CarDTO@aac2913],[]> (execution time: 42ms)
-2025-04-30 07:10:56 WARN  c.e.s.e.ExceptionHandlerController - Argument type mismatch: Method parameter 'minMileage': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Integer'; For input string: "1212112121212", returning 400 status
-2025-04-30 07:11:12 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
-2025-04-30 07:11:12 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
-2025-04-30 07:11:12 INFO  com.example.sb.cache.CarCache - CarCache resources cleaned up
-2025-04-30 07:11:12 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-04-30 07:11:12 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
-2025-04-30 07:11:12 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-04-30 11:11:50 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-04-30 11:11:51 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-04-30 11:11:51 INFO  com.example.sb.cache.CarCache - CarCache initialized with cleanup task every 300 seconds
+2025-04-30 11:11:51 INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-04-30 11:11:53 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-04-30 11:11:53 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-04-30 11:11:53 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-04-30 11:11:53 INFO  com.example.sb.SbApplication - Started SbApplication in 9.51 seconds (process running for 11.332)
+2025-04-30 11:13:47 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-04-30 11:13:47 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-04-30 11:13:47 INFO  com.example.sb.cache.CarCache - CarCache resources cleaned up
+2025-04-30 11:13:47 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-04-30 11:13:47 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-04-30 11:13:47 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

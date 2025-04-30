@@ -54,6 +54,42 @@ public class CarController {
     this.carCache = carCache;
   }
 
+  @Operation(
+      summary = "Create multiple cars in bulk",
+      description = "Creates multiple cars for the specified user in a single operation"
+  )
+  @ApiResponses({
+      @ApiResponse(
+          responseCode = "200",
+          description = "Cars created successfully",
+          content = @Content(schema = @Schema(implementation = CarDTO.class))
+      ),
+      @ApiResponse(
+          responseCode = "400",
+          description = "Invalid input data"
+      ),
+      @ApiResponse(
+          responseCode = "404",
+          description = "User not found"
+      )
+  })
+  @PostMapping("/bulk")
+  public ResponseEntity<List<CarDTO>> createCarsBulk(
+      @io.swagger.v3.oas.annotations.parameters.RequestBody(
+          description = "List of car details to create",
+          required = true,
+          content = @Content(schema = @Schema(implementation = CarDTO.class))
+      )
+      @Valid @RequestBody List<CarDTO> carDtos,
+      @Parameter(description = "ID of the user") @PathVariable Long userId) {
+
+    List<CarDTO> createdCars = carDtos.stream()
+        .map(carDto -> carService.createCar(carDto, userId))
+        .toList();
+
+    return ResponseEntity.ok(createdCars);
+  }
+
   /**
    * Creates a new car for the specified user.
    *

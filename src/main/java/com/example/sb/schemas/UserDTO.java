@@ -97,6 +97,10 @@ public class UserDTO {
    * @return new UserDTO instance with converted cars if present
    */
   public static UserDTO fromEntity(User user) {
+    if (user == null) {
+      return null;
+    }
+
     List<CarDTO> carDTOs = user.getCars() != null
         ? user.getCars().stream()
         .map(CarDTO::fromEntity)
@@ -107,7 +111,7 @@ public class UserDTO {
         user.getId(),
         user.getNickname(),
         user.getEmail(),
-        user.getPassword(),
+        null, // Не возвращаем пароль
         carDTOs
     );
   }
